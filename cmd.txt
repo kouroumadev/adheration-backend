@@ -1,0 +1,15 @@
+php artisan migrate:refresh --path=/database/migrations/account/
+
+php artisan migrate --path=/database/migrations/student/
+
+php artisan make:model Student -mcr
+
+php artisan make:model Student -a
+
+composer require laravel/ui
+
+php artisan ui:auth
+
+php artisan storage:link
+
+php artisan make:controller DepartmentController --resource
