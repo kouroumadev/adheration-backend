@@ -56,6 +56,20 @@ return [
             'throw' => false,
         ],
 
+        'affiliationImgs' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/affiliationImgs'),
+            'url' => env('APP_URL').'/storage',
+            'visibility' => 'public',
+        ],
+
+        'affiliationDocs' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/affiliationDocs'),
+            'url' => env('APP_URL').'/storage',
+            'visibility' => 'public',
+        ],
+
     ],
 
     /*
