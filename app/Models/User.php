@@ -21,10 +21,12 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'tem_password',
         'type_user',
         'first_login',
         'n_affiliation',
         'entreprise_id',
+        'status',
     ];
 
     /**

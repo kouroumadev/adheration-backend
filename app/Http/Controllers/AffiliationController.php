@@ -42,7 +42,7 @@ class AffiliationController extends Controller
     }
 
     public function AffStore(Request $request){
-        // dd($request->i_fiscale);
+        dd($request->all());
         $categorie = '';
         $code = Str::upper(Str::random(13));
         $existe = Entreprise::where('raison_sociale',$request->raison_sociale)->get();

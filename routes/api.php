@@ -33,6 +33,6 @@ Route::post('affiliation/store',[AffiliationController::class,'AffStore']);
 
 
 Route::post('register',[UserAuthController::class,'register']);
-Route::post('login',[UserAuthController::class,'login']);
+Route::post('dirga/login',[UserAuthController::class,'dirgaLogin']);
 Route::post('logout',[UserAuthController::class,'logout'])
   ->middleware('auth:sanctum');
