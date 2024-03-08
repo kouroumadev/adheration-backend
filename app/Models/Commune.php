@@ -8,4 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class Commune extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'id',
+        'libelle',
+        'ville_id',
+
+    ];
+
+    protected $table = 'communes';
 }
