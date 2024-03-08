@@ -42,140 +42,156 @@ class AffiliationController extends Controller
     }
 
     public function AffStore(Request $request){
-        dd($request->all());
-        $categorie = '';
-        $code = Str::upper(Str::random(13));
-        $existe = Entreprise::where('raison_sociale',$request->raison_sociale)->get();
-        $sigleImage = $request->file('sigle');
-        $rccmFile= $request->file('rccm_file');
-        $ndniFile= $request->file('num_impot_file');
-        // dd($ndniFile);
+        // dd($request->data);
 
-        if($request->has('sigle')){
-            $file = $request->file('sigle')->getClientOriginalName();
-            $filename = pathinfo($file, PATHINFO_FILENAME);
-            $extension = pathinfo($file, PATHINFO_EXTENSION);
+        $sigle = $request->data['sigle'];
+        $photo = $request->data['photo'];
+        $num_impot_file = $request->data['num_impot_file'];
+        $document = $request->data['document'];
+        $rccm_file = $request->data['rccm_file'];
+        $nombre_emp = $request->data['nombre_emp'];
+        $email = explode(".",$request->data['email']);
 
-            $img = $filename."-".time()."-".$request->no_ima_employee.".".$extension;
+         $categorie = '';
+         $code = Str::upper(Str::random(13));
+         $existe = Entreprise::where('raison_sociale',$request->data['raison_sociale'])->get();
 
-            Storage::disk('affiliationImgs')->put($img,file_get_contents($request->file('sigle')));
+
+        //STORE SIGLE
+        if($sigle != ""){
+            // Decode the base64 string
+            $image = base64_decode(preg_replace('#^data:([^;]+);base64,#', '', $sigle));
+
+            // Generate a unique file name
+            $fileExtension = explode('/', explode(':', substr($sigle, 0, strpos($sigle, ';')))[1])[1];
+            $sigle_path = $email['0'].'_' . time() . '.' . $fileExtension;
+
+            Storage::disk('affiliationImgs')->put($sigle_path,$image);
+
+        } else {
+            $sigle_path = "";
         }
 
-        if($request->has('rccm_file')){
+        // STORE photo
+        if($photo != ""){
+            // Decode the base64 string
+            $image = base64_decode(preg_replace('#^data:([^;]+);base64,#', '', $photo));
 
+            // Generate a unique file name
+            $fileExtension = explode('/', explode(':', substr($photo, 0, strpos($photo, ';')))[1])[1];
+            $photo_path = $email['0']. '_' . time() . '.' . $fileExtension;
+
+            Storage::disk('affiliationImgs')->put($photo_path,$image);
+
+        } else {
+            $photo_path = "";
         }
 
-        if($request->has('num_impot_file')){
+        // STORE num_impot_file
+        if($num_impot_file != ""){
+            // Decode the base64 string
+            $pdf_file = base64_decode($num_impot_file);
 
+            $impot_path = $email['0'].'_' . time() . 'impot' .$request->data['telephone']. '.pdf';
+
+            // Save the decoded PDF to the specified path
+            Storage::disk('public')->put('affiliationDocs/'.$impot_path, $pdf_file);
+
+        } else {
+            $impot_path = "";
         }
 
-        $save_img =''; $rccm_path =''; $ndni_path ='';
-        if ($rccmFile) {
-            $destination_path = 'upload/entreprise_doc';
-            $file_name = $rccmFile->getClientOriginalName();
-            $uniqueName = uniqid().'rccm'.'.'.'pdf';
-            $rccm_path = $rccmFile->move($destination_path,$uniqueName);
-        }
-        if ($ndniFile) {
-            $destination_path = 'upload/entreprise_doc';
-            $file_name = $ndniFile->getClientOriginalName();
-            $uniqueName = uniqid().'ndni'.'.'.'pdf';
-            $ndni_path = $ndniFile->move($destination_path,$uniqueName);
-        }
+        // STORE document
+        if($document != ""){
+            // Decode the base64 string
+            $pdf_file = base64_decode($document);
 
-        if($sigleImage){
-            $manager = ImageManager::withDriver(new Driver());
-            $filename = $sigleImage->getClientOriginalName();
-            $unique = uniqid()."_".$filename;
-            $img = $manager->read($sigleImage);
-            $taille = $img->resize(500,500);
-            $taille->toJpeg(80)->save(base_path('public/upload/sigle/'.$unique));
-            $save_img = 'upload/sigle/'.$unique;
+            $doc_path = $email['0'].'_' . time() . 'doc' .$request->data['telephone']. '.pdf';
 
+            // Save the decoded PDF to the specified path
+            Storage::disk('public')->put('affiliationDocs/'.$doc_path, $pdf_file);
 
+        } else {
+            $doc_path = "";
         }
 
+        // STORE rccm_file
+        if($rccm_file != ""){
+            // Decode the base64 string
+            $pdf_file = base64_decode($rccm_file);
 
+            $rccm_path = $email['0'].'_' . time() . 'rccm' .$request->data['telephone']. '.pdf';
 
-        if ($request->nombre_emp > 20) {
+            // Save the decoded PDF to the specified path
+            Storage::disk('public')->put('affiliationDocs/'.$rccm_path, $pdf_file);
+
+        } else {
+            $rccm_path = "";
+        }
+
+        if ($nombre_emp > 20) {
             $categorie = "E+20";
         } else {
             $categorie = "E-20";
         }
-        // dd($categorie);
+
         //   dd(sizeof($existe));
         if (sizeof($existe) == 1) {
-            $data = "Ce Nom d'entreprise a été déclaré veillez changer le nom";
-            return response()->json($data, 404);
-
+            return response()->json([
+                'message' => "Ce Nom d'entreprise a été déclaré veillez changer le nom"
+            ], 404);
         } else {
-            $entreprise = new Entreprise();
+                $entreprise = new Entreprise();
 
-                 $entreprise->num_agrement = $request->num_agrement;
-                 $entreprise->raison_sociale = $request->raison_sociale;
-                 $entreprise->num_impot = $request->num_impot;
-                 $entreprise->activite_principale = $request->activite_principale;
-                 $entreprise->quartier_entreprise = $request->quartier_entreprise;
-                 $entreprise->commune_entreprise = $request->commune_entreprise;
-                  $entreprise->ville_entreprise =$request->ville_entreprise;
-                  $entreprise->nombre_emp =$request->nombre_emp;
-                // efectif_homme =$request->effectif_homme;
-                // efectif_femme =$request->effectif_femme;
-                 $entreprise->boite_postale =$request->boite_postale;
-                 $entreprise->categorie =$categorie;
-                 $entreprise->sigle =$save_img;
-                 $entreprise->rccm_file =$rccm_path;
-                 $entreprise->num_impot_file =$ndni_path;
+                $entreprise->num_agrement = $request->data['num_agrement'];
+                $entreprise->raison_sociale = $request->data['raison_sociale'];
+                $entreprise->num_impot = $request->data['num_impot'];
+                $entreprise->activite_principale = $request->data['activite_principale'];
+                $entreprise->quartier_entreprise = $request->data['quartier_entreprise'];
+                $entreprise->commune_entreprise = $request->data['commune_entreprise'];
+                $entreprise->ville_entreprise =$request->data['ville_entreprise'];
+                $entreprise->date_creation =$request->data['date_creation'];
+                $entreprise->nombre_emp =$nombre_emp;
+                $entreprise->efectif_homme =$request->data['efectif_homme'];
+                $entreprise->efectif_femme =$request->data['efectif_femme'];
+                $entreprise->efectif_apprentis =$request->data['efectif_apprentis'];
+                $entreprise->categorie =$categorie;
+                $entreprise->sigle =$sigle_path;
+                // $entreprise->photo =$photo_path;
+                $entreprise->rccm_file =$rccm_path;
+                $entreprise->num_impot_file =$impot_path;
+                // $entreprise->document =$doc_path;
+                $entreprise->save();
 
-                 $entreprise->save();
+                $entreprise_id = $entreprise->id;
 
-                 $entreprise_id = $entreprise->id;
-
-            // // dd($entreprise);
             // ////// Representant store
             $representant = new Representant();
-             $representant->prenom =  $request->prenom;
-             $representant->nom =  $request->nom;
-             $representant->document_identite =  $request->document_identite;
-                // 'ville_representant =  $request->ville_representant;
-             $representant->email =  $request->email;
-             $representant->telephone_representant = $request->telephone_representant;
-             $representant->adresse_representant = $request->adresse_representant;
-             $representant->entreprise_id =  $entreprise_id;
-            //  $representant->created_at =  Carbon::now();
+            $representant->entreprise_id =  $entreprise_id;
+             $representant->prenom =  $request->data['prenom'];
+             $representant->nom =  $request->data['nom'];
+             $representant->date_naissance =  $request->data['date_naissance'];
+             $representant->lieu_naissance =  $request->data['lieu_naissance'];
+             $representant->prefecture_code =  $request->data['prefecture_code'];
+             $representant->email =  $request->data['email'];
+             $representant->telephone = $request->data['telephone'];
+             $representant->type_document = $request->data['type_document'];
+             $representant->document = $request->$doc_path;
+             $representant->photo = $photo_path;
+
              $representant->save();
              $representant_id = $representant->id;
 
-
-            // $representant = Representant::insertGetId([
-            //     'prenom' => $request->prenom;
-            //     'nom' => $request->nom,
-            //     'document_identite' => $request->document_identite,
-            //     // 'ville_representant' => $request->ville_representant,
-            //     'email' => $request->email,
-            //     'telephone_representant' =>$request->telephone_representant,
-            //     'adresse_representant' =>$request->adresse_representant,
-            //     'entreprise_id' => $entreprise,
-            //     'created_at' => Carbon::now()
-            // ]);
-            // // dd($representant);
-            // ///// Demande store
-
             $demande = new Demande();
-            $demande->representant_id = $request->representant_id;
-            $demande->entreprise_id = $request->entreprise_id;
+            $demande->entreprise_id = $entreprise_id;
+            $demande->representant_id = $representant_id;
             $demande->type_demande = "affiliation";
             $demande->code_demande = $code;
             $demande->save();
 
-            // $demande = Demande::create([
-            //     'representant_id' => $representant_id,
-            //     'entreprise_id' => $entreprise_id,
-            //     'type_demande' => "affiliation",
-            //     'code_demande' => $code,
-            // ]);
-
-            return view('pages.confirmation-affiliation',compact('demande'));
+            return response()->json([
+                'message' => "Affiliation cree avec succes"
+            ], 200);
         }
 
 

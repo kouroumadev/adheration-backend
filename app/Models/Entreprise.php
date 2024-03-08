@@ -12,21 +12,25 @@ class Entreprise extends Model
     protected $fillable = [
         'id',
         'n_immatriculation',
-        'num_agrement',
         'raison_sociale',
+        'num_agrement',
         'num_impot',
         'activite_principale',
         'quartier_entreprise',
         'commune_entreprise',
         'ville_entreprise',
-        'boite_postale',
+        'date_creation',
         'nombre_emp',
-        'effectif_homme',
-        'effectif_femme',
-        'sigle',
+        'efectif_homme',
+        'efectif_femme',
+        'efectif_apprentis',
         'categorie',
+        'sigle',
         'rccm_file',
         'num_impot_file',
-        'adresse'
-];
+    ];
+
+    public function representants(){
+        return $this->hasMany(Representant::class,'entreprise_id','id');
+    }
 }

@@ -11,13 +11,20 @@ class Representant extends Model
 
     protected $fillable = [
         'id',
-        'prenom' ,
         'entreprise_id',
+        'prenom',
         'nom',
-        'document_identite',
+        'date_naissance',
+        'lieu_naissance',
+        'prefecture_code',
         'email',
-        'telephone_representant',
-        'adresse_representant',
-        'ville_representant'
+        'telephone',
+        'type_document',
+        'document',
+        'photo',
     ];
+
+    public function prefectures() {
+        return $this->hasMany(Prefecture::class,'prefecture_code','code');
+    }
 }

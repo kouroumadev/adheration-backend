@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 // use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserAuthController;
 use App\Http\Controllers\AffiliationController;
+use App\Http\Controllers\DirgaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,10 +30,21 @@ Route::get('communes',[AffiliationController::class,'getCommunes']);
 Route::get('prefectures',[AffiliationController::class,'getPrefectures']);
 Route::get('branches',[AffiliationController::class,'getBranches']);
 
-Route::post('affiliation/store',[AffiliationController::class,'AffStore']);
+// Route::middleware(['cors'])->group(function () {
+//     Route::post('affiliation/store',[AffiliationController::class,'AffStore']);
+// });
+
+Route::group(['middleware' => 'cors'], function () {
+    Route::post('affiliation/store',[AffiliationController::class,'AffStore']);
+    Route::get('dirga/all-aff',[DirgaController::class,'getAllAffiliation'])->middleware('auth:sanctum');
+});
+
+
+// Route::post('affiliation/store',[AffiliationController::class,'AffStore'])->middleware('cors');
 
 
 Route::post('register',[UserAuthController::class,'register']);
 Route::post('dirga/login',[UserAuthController::class,'dirgaLogin']);
+
 Route::post('logout',[UserAuthController::class,'logout'])
   ->middleware('auth:sanctum');

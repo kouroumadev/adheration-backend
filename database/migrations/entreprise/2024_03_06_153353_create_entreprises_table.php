@@ -14,22 +14,22 @@ return new class extends Migration
         Schema::create('entreprises', function (Blueprint $table) {
             $table->id();
             $table->string('n_immatriculation')->nullable();
-            $table->string('raison_sociale');
-            $table->string('num_agrement');
-            $table->string('num_impot');
-            $table->string('activite_principale');
-            $table->string('quartier_entreprise');
-            $table->string('commune_entreprise');
-            $table->string('ville_entreprise');
-            $table->string('nombre_emp');
-            $table->string('effectif_homme')->nullable();
-            $table->string('effectif_femme')->nullable();
-            $table->string('boite_postale');
+            $table->string('raison_sociale')->nullable();
+            $table->string('num_agrement')->nullable();
+            $table->string('num_impot')->nullable();
+            $table->string('activite_principale')->nullable();
+            $table->string('quartier_entreprise')->nullable();
+            $table->string('commune_entreprise')->nullable();
+            $table->string('ville_entreprise')->nullable();
+            $table->string('date_creation')->nullable();
+            $table->string('nombre_emp')->nullable();
+            $table->string('efectif_homme')->nullable();
+            $table->string('efectif_femme')->nullable();
+            $table->string('efectif_apprentis')->nullable();
+            $table->string('categorie')->nullable();
             $table->string('sigle')->nullable();
-            $table->string('categorie');
-            $table->string('rccm_file');
-            $table->string('num_import_file');
-            $table->string('adresse');
+            $table->string('rccm_file')->nullable();
+            $table->string('num_impot_file')->nullable();
             $table->timestamps();
         });
     }
